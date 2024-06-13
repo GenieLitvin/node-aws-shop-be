@@ -9,22 +9,27 @@ export class NodeAwsShopBeStack extends cdk.Stack {
 
 
 
-    const getProductsListFunction = new lambda.Function(this, 'getProductsListFunction', {
+    const getProductsListFunction = new lambda.Function(this, 'getProductsListFn', {
       runtime: lambda.Runtime.NODEJS_20_X, 
-      code: lambda.Code.fromAsset('dist/lambda'), 
+      code: lambda.Code.fromAsset('dist'), 
       handler: 'getProductsList.handler',
     });
 
-    const getProductsByIdFunction = new lambda.Function(this, 'getProductsByIdFunction', {
+    const getProductsByIdFunction = new lambda.Function(this, 'getProductsByIdFn', {
       runtime: lambda.Runtime.NODEJS_20_X, 
       code: lambda.Code.fromAsset('dist'), 
       handler: 'getProductsById.handler',
     });
 
 
-    const api = new apigateway.LambdaRestApi(this, 'ProductdApi', {
+    const api = new apigateway.LambdaRestApi(this, 'ProductsApi', {
       handler: getProductsListFunction,
       proxy: false,
+      defaultCorsPreflightOptions: {
+        allowOrigins: apigateway.Cors.ALL_ORIGINS,
+        allowMethods: apigateway.Cors.ALL_METHODS, // ALLOW GET, POST, PUT, DELETE, etc.
+        allowHeaders: ['Content-Type', 'X-Amz-Date', 'Authorization', 'X-Api-Key', 'X-Amz-Security-Token'],
+      }
     });
         
 

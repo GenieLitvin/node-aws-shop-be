@@ -1,14 +1,17 @@
 import { ProductService } from '../services/productService';
 
 const productService = new ProductService();
-import { basename, dirname } from "node:path";
+
 exports.handler = async (event:any) => {
 
     const products = productService.getProductsList();
-    const filename = basename(__filename);
     return {
         statusCode: 200,
-        headers: { "Content-Type": "text/plain" },
-        body: JSON.stringify({f:filename, p:products}),
+        headers: { "Content-Type": "application/json" ,
+            'Access-Control-Allow-Headers': "Content-Type",
+            'Access-Control-Allow-Methods': "OPTIONS,GET",
+            'Access-Control-Allow-Origin': "*",
+        },
+        body: JSON.stringify(products)
     };
 };

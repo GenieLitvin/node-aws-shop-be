@@ -1,10 +1,10 @@
 import ProductsData from './products.json'
 
 export interface Product{
-    id:number,
-    name: string,
-    description:string;
-    price:number
+    id: string,
+    title: string,
+    description: string,
+    price: number,
 } 
 
 
@@ -19,7 +19,7 @@ export class ProductService {
     getProductsList():Product[]{
         return this.products;
     }
-    getProductById(id:number): Product| undefined {
+    getProductById(id:string): Product| undefined {
         return this.products.find((product)=>product.id == id);
     }
 }
