@@ -1,0 +1,68 @@
+openapi: 3.0.0
+info:
+  title: Product Service API
+  description: API для управления продуктами
+  version: 1.0.0
+
+servers:
+  - url: https://{host}/prod
+    description: Продуктовый сервер
+    variables:
+      host:
+        default: 9x60z5i1uc.execute-api.eu-west-1.amazonaws.com
+
+paths:
+  /products:
+    get:
+      summary: Получить список продуктов
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+      tags:
+        - Products
+
+  /products/{id}:
+    get:
+      summary: Получить продукт по ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID продукта
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Продукт не найден
+      tags:
+        - Products
+
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Product 1
+        description:
+          type: string
+          example: Description 1
+        price:
+          type: number
+          example: 100
