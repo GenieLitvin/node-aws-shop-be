@@ -2,7 +2,7 @@ import { ProductService } from '../services/productService';
 
 const productService = new ProductService();
 
-exports.handler = async (event:any) => {
+export const handler = async (event:any) => {
 
     const products = productService.getProductsList();
     return {
