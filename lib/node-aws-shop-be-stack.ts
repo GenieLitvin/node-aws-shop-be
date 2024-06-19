@@ -2,25 +2,44 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
+import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import * as iam from 'aws-cdk-lib/aws-iam';
 
 export class NodeAwsShopBeStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
 
+    const productTable = dynamodb.TableV2.fromTableName(this, 'ProductTable', 'Product');
+    const stockTable = dynamodb.Table.fromTableName(this, 'StockTable', 'Stock');
+
+    const dynamoPolicy = new iam.PolicyStatement({
+      actions: ['dynamodb:*'],
+      resources: [productTable.tableArn, stockTable.tableArn],
+    });
+    const environment = {
+      PRODUCT_TABLE_NAME: productTable.tableName,
+      STOCK_TABLE_NAME:stockTable.tableName
+    };
+
 
     const getProductsListFunction = new lambda.Function(this, 'getProductsListFn', {
       runtime: lambda.Runtime.NODEJS_20_X, 
       code: lambda.Code.fromAsset('dist'), 
       handler: 'getProductsList.handler',
+      environment
     });
+    getProductsListFunction.addToRolePolicy(dynamoPolicy);
+
+
 
     const getProductsByIdFunction = new lambda.Function(this, 'getProductsByIdFn', {
       runtime: lambda.Runtime.NODEJS_20_X, 
       code: lambda.Code.fromAsset('dist'), 
       handler: 'getProductsById.handler',
+      environment
     });
-
+    getProductsByIdFunction.addToRolePolicy(dynamoPolicy);
 
     const api = new apigateway.LambdaRestApi(this, 'ProductsApi', {
       handler: getProductsListFunction,

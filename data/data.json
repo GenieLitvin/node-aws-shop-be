@@ -1,0 +1,94 @@
+{
+    "Product": [
+        {
+            "PutRequest": {
+                "Item": {
+                    "description": { "S": "Short Product Description1" },
+                    "id": { "S": "7567ec4b-b10c-48c5-9345-fc73c48a80aa" },
+                    "price": { "N": "2.4" },
+                    "title": { "S": "Task1" }
+                }
+            }
+        },
+        {
+            "PutRequest": {
+                "Item": {
+                    "description": { "S": "Short Product Description3" },
+                    "id": { "S": "7567ec4b-b10c-48c5-9345-fc73c48a80a0" },
+                    "price": { "N": "10" },
+                    "title": { "S": "Task2" }
+                }
+            }
+        },
+        {
+            "PutRequest": {
+                "Item": {
+                    "description": { "S": "Short Product Description2" },
+                    "id": { "S": "7567ec4b-b10c-48c5-9345-fc73c48a80a2" },
+                    "price": { "N": "23" },
+                    "title": { "S": "Product3" }
+                }
+            }
+        },
+        {
+            "PutRequest": {
+                "Item": {
+                    "description": { "S": "Short Product Description7" },
+                    "id": { "S": "7567ec4b-b10c-48c5-9345-fc73c48a80a1" },
+                    "price": { "N": "15" },
+                    "title": { "S": "Product4" }
+                }
+            }
+        },
+        {
+            "PutRequest": {
+                "Item": {
+                    "description": { "S": "Short Product Description2" },
+                    "id": { "S": "7567ec4b-b10c-48c5-9345-fc73c48a80a3" },
+                    "price": { "N": "23" },
+                    "title": { "S": "Product5" }
+                }
+            }
+        },
+        {
+            "PutRequest": {
+                "Item": {
+                    "description": { "S": "Short Product Description4" },
+                    "id": { "S": "7567ec4b-b10c-48c5-9345-fc73348a80a1" },
+                    "price": { "N": "15" },
+                    "title": { "S": "Product6" }
+                }
+            }
+        },
+        {
+            "PutRequest": {
+                "Item": {
+                    "description": { "S": "Short Product Descriptio1" },
+                    "id": { "S": "7567ec4b-b10c-48c5-9445-fc73c48a80a2" },
+                    "price": { "N": "23" },
+                    "title": { "S": "Product7" }
+                }
+            }
+        },
+        {
+            "PutRequest": {
+                "Item": {
+                    "description": { "S": "Short Product Description7" },
+                    "id": { "S": "7567ec4b-b10c-45c5-9345-fc73c48a80a1" },
+                    "price": { "N": "15" },
+                    "title": { "S": "Product8" }
+                }
+            }
+        }
+    ],
+    "Stock":[
+        {
+            "PutRequest": {
+                "Item": {
+                    "count": { "N": "1" },
+                    "product_id": { "S": "7567ec4b-b10c-48c5-9345-fc73c48a80a0" }
+                }
+            }
+        }
+    ]
+}

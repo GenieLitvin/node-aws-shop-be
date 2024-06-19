@@ -4,7 +4,7 @@ const productService = new ProductService();
 
 export const handler = async (event:any) => {
 
-    const products = productService.getProductsList();
+    const products = await productService.getProductsList();
     return {
         statusCode: 200,
         headers: { "Content-Type": "application/json" ,
