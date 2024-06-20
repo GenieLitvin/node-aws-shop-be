@@ -1,7 +1,7 @@
 const esbuild = require('esbuild');
 
 esbuild.build({
-  entryPoints: ['./lambda/getProductsList.ts', './lambda/getProductsById.ts'],
+  entryPoints: ['./lambda/*.ts'],
   bundle: true,
   platform: 'node',
   target: 'node14',

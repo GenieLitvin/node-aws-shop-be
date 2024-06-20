@@ -41,6 +41,16 @@ export class NodeAwsShopBeStack extends cdk.Stack {
     });
     getProductsByIdFunction.addToRolePolicy(dynamoPolicy);
 
+    const createProductFunction = new lambda.Function(this, 'createProductFn', {
+      runtime: lambda.Runtime.NODEJS_20_X, 
+      code: lambda.Code.fromAsset('dist'), 
+      handler: 'createProduct.handler',
+      environment
+    });
+
+    createProductFunction.addToRolePolicy(dynamoPolicy);
+
+
     const api = new apigateway.LambdaRestApi(this, 'ProductsApi', {
       handler: getProductsListFunction,
       proxy: false,
@@ -57,10 +67,16 @@ export class NodeAwsShopBeStack extends cdk.Stack {
       methodResponses: [{ statusCode: '200', }],
     });
 
+    productsResource.addMethod('POST',new apigateway.LambdaIntegration(createProductFunction), {
+      methodResponses: [{ statusCode: '400', }],
+    });
+
     const productsByIdResource = productsResource.addResource('{id}');
     productsByIdResource.addMethod('GET', new apigateway.LambdaIntegration(getProductsByIdFunction),{
       methodResponses: [{ statusCode: '200', }],
     });;
+
+    
 
   }
 }

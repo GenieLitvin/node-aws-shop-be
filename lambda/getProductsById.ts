@@ -6,7 +6,7 @@ export const handler = async (event:any) => {
 
     const { id } = event.pathParameters;
 
-    const product = productService.getProductById(id);
+    const product = await productService.getProductById(id);
     if (product){
         return {
             statusCode: 200,

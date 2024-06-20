@@ -1,6 +1,6 @@
 //import ProductsData from './products.json'
-import { DynamoDBClient, ScanCommand  } from '@aws-sdk/client-dynamodb';
-import { unmarshall } from "@aws-sdk/util-dynamodb";
+import { DynamoDBClient, ScanCommand, GetItemCommand, PutItemCommand } from '@aws-sdk/client-dynamodb';
+import { unmarshall, marshall } from "@aws-sdk/util-dynamodb";
 
 export interface Product{
     id: string,
@@ -36,18 +36,22 @@ export class ProductService {
 
     async getProductsList():Promise<StockWithProduct[]>{
 
-        const command = new ScanCommand({
+        const productCommand = new ScanCommand({
             TableName: this.productTableName,
-          });
-        const products = await this.docClient.send(new ScanCommand({
-            TableName: this.productTableName,
-        }));
-        const stock =  await this.docClient.send(new ScanCommand({
+        });
+        const stockCommand = new ScanCommand({
             TableName: this.stockTableName,
-        }));
+        });
 
-        const unmarshall_products = products.Items?.map(item => unmarshall(item)) as Product[];
-        const unmarshall_stock = stock.Items?.map(item => unmarshall(item)) as Stock[];
+        
+        const [productData, stockData] = await Promise.all([
+            this.docClient.send(productCommand),
+            this.docClient.send(stockCommand),
+        ]);
+
+
+        const unmarshall_products = productData.Items?.map(item => unmarshall(item)) as Product[];
+        const unmarshall_stock = stockData.Items?.map(item => unmarshall(item)) as Stock[];
 
         const stockMap = new Map<string, number>();
         for (const stock of unmarshall_stock) {
@@ -62,9 +66,33 @@ export class ProductService {
         return result
 
     }
-    getProductById(id:string): Product| undefined {
-        return this.products.find((product)=>product.id == id);
-    }
+    async getProductById(productId:string): Promise<Product| undefined> {
+        
+        const productCommand = new GetItemCommand({
+            TableName: this.productTableName,
+            Key: { "id": { S: productId }},
+        });
 
+        
+        const productData = await  this.docClient.send(productCommand)
+        //console.log(productData)
+        const unmarshall_product = productData.Item?unmarshall(productData.Item) as Product:undefined;
+        return unmarshall_product;
+    }
+    async createProduct(product: Product): Promise<void> {
+        const { id, title, description, price } = product;
+
+        const productCommand = new PutItemCommand({
+            TableName: this.productTableName,
+            Item: marshall({
+                id,
+                title,
+                description,
+                price
+            }),
+        });
+        
+        await this.docClient.send(productCommand)
+    }
 
 }
