@@ -12,9 +12,9 @@ export const handler = async (event:any) => {
             statusCode: 200,
             headers: { 
                 "Content-Type": "application/json",
-                'Access-Control-Allow-Headers': "'Content-Type",
-                'Access-Control-Allow-Methods': "'OPTIONS,GET'",
-                'Access-Control-Allow-Origin': "'*'",
+                'Access-Control-Allow-Headers': "Content-Type",
+                'Access-Control-Allow-Methods': "OPTIONS,GET",
+                'Access-Control-Allow-Origin': "*",
             },
             body: JSON.stringify(product),
         };
