@@ -1,13 +1,16 @@
 import { v4 as uuidv4 } from 'uuid';
-import { ProductService, Product } from '../services/productService';
-
+import { ProductService, Product, StockWithProduct } from '../services/productService';
+import { Logger } from './logger';
+import { ErrorHandler } from './errorHandler';
 
 const productService = new ProductService();
 
+
 export const handler = async (event:any) => {
     try {
+        Logger.log(event);
         const body = JSON.parse(event.body || '{}');
-        const { title, description, price, count } = body;
+        const { title, description, price, count=0 } = body;
 
         if (!title || !description || !price) {
             return {
@@ -16,12 +19,12 @@ export const handler = async (event:any) => {
             };
         }
 
-        const product: Product = {
+        const product: StockWithProduct = {
             id: uuidv4(),
             title,
             description,
             price: parseFloat(price),
-            //count: parseInt(count, 10),
+            count: parseInt(count, 10),
         };
 
         await productService.createProduct(product);
@@ -31,10 +34,6 @@ export const handler = async (event:any) => {
             body: JSON.stringify(product),
         };
     } catch (error) {
-        console.error('Error creating product:', error);
-        return {
-            statusCode: 500,
-            body: JSON.stringify({ message: 'Error creating product', error }),
-        };
+        return ErrorHandler.handleError(error);
     }
 };

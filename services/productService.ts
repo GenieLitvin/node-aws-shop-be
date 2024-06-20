@@ -1,5 +1,5 @@
 //import ProductsData from './products.json'
-import { DynamoDBClient, ScanCommand, GetItemCommand, PutItemCommand } from '@aws-sdk/client-dynamodb';
+import { DynamoDBClient, ScanCommand, GetItemCommand, PutItemCommand, TransactWriteItemsCommand } from '@aws-sdk/client-dynamodb';
 import { unmarshall, marshall } from "@aws-sdk/util-dynamodb";
 
 export interface Product{
@@ -14,7 +14,7 @@ export interface Stock{
     count:number
 }
 
-type StockWithProduct =  Product|Stock;
+export type StockWithProduct =  Product&Omit<Stock,"product_id">;
 
 
 
@@ -50,7 +50,7 @@ export class ProductService {
         ]);
 
 
-        const unmarshall_products = productData.Items?.map(item => unmarshall(item)) as Product[];
+        const unmarshall_products = productData.Items?.map(item => unmarshall(item)) as StockWithProduct[];
         const unmarshall_stock = stockData.Items?.map(item => unmarshall(item)) as Stock[];
 
         const stockMap = new Map<string, number>();
@@ -79,20 +79,38 @@ export class ProductService {
         const unmarshall_product = productData.Item?unmarshall(productData.Item) as Product:undefined;
         return unmarshall_product;
     }
-    async createProduct(product: Product): Promise<void> {
-        const { id, title, description, price } = product;
-
-        const productCommand = new PutItemCommand({
-            TableName: this.productTableName,
-            Item: marshall({
+    async createProduct(stockWithProduct: StockWithProduct): Promise<void> {
+        const { id, title, description, price, count } = stockWithProduct;
+     
+        const productItem = {
                 id,
                 title,
                 description,
                 price
-            }),
-        });
-        
-        await this.docClient.send(productCommand)
+        };
+        const stockItem = {
+                product_id:id,
+                count
+        };
+        const params = {
+            TransactItems: [
+                {
+                    Put: {
+                        TableName: this.productTableName,
+                        Item: marshall(productItem)
+                    }
+                },
+                {
+                    Put: {
+                        TableName: this.stockTableName,
+                        Item: marshall(stockItem)
+                    }
+                }
+            ]
+        };
+
+        const command = new TransactWriteItemsCommand(params);
+        await this.docClient.send(command);
     }
 
 }
