@@ -1,32 +1,15 @@
 import {ProductService} from '../services/productService';
-import { Logger  } from './logger';
-import { ErrorHandler } from './errorHandler';
+import {reqHandler} from '../utils/reqHandler';
+import { StatusHandler } from '../utils/statusHandler';
 
 const productService = new ProductService();
 
-export const handler = async (event:any) => {
-    try {
-        Logger.log(event);
+export const handler = reqHandler(async (event:any) => {
         const { id } = event.pathParameters;
         const product = await productService.getProductById(id);
         if (product){
-            return {
-                statusCode: 200,
-                headers: { 
-                    "Content-Type": "application/json",
-                    'Access-Control-Allow-Headers': "Content-Type",
-                    'Access-Control-Allow-Methods': "OPTIONS,GET",
-                    'Access-Control-Allow-Origin': "*",
-                },
-                body: JSON.stringify(product),
-            };
+            return StatusHandler.Success(product)
         }else{
-            return {
-                statusCode: 404,
-                body: JSON.stringify({ error: 'Product not found' }),
-            }
+            return StatusHandler.NotFound({ error: 'Product not found' })
         }
-    } catch (error) {
-        return ErrorHandler.handleError(error);
-    }
-};
+});

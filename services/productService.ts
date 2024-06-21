@@ -17,8 +17,6 @@ export interface Stock{
 export type StockWithProduct =  Product&Omit<Stock,"product_id">;
 
 
-
-
 export class ProductService {
 
     private products: Product[];
@@ -61,24 +59,32 @@ export class ProductService {
         const result = unmarshall_products.map(product => ({
             ...product,
             count: stockMap.get(product.id) || 0,
-          }))
+        }))
         
         return result
 
     }
-    async getProductById(productId:string): Promise<Product| undefined> {
+    async getProductById(productId:string): Promise<StockWithProduct|undefined> {
         
         const productCommand = new GetItemCommand({
             TableName: this.productTableName,
             Key: { "id": { S: productId }},
         });
-
+        const stockCommand = new GetItemCommand({
+            TableName: this.stockTableName,
+            Key: { "product_id": { S: productId }},
+        });
+        const [productData, stockData] = await Promise.all([
+            this.docClient.send(productCommand),
+            this.docClient.send(stockCommand),
+        ]);
         
-        const productData = await  this.docClient.send(productCommand)
-        //console.log(productData)
+
         const unmarshall_product = productData.Item?unmarshall(productData.Item) as Product:undefined;
-        return unmarshall_product;
+        const unmarshall_stock = stockData.Item?unmarshall(stockData.Item) as Stock:undefined;
+        return unmarshall_product?{...unmarshall_product, count:unmarshall_stock?.count||0}:undefined;
     }
+
     async createProduct(stockWithProduct: StockWithProduct): Promise<void> {
         const { id, title, description, price, count } = stockWithProduct;
      

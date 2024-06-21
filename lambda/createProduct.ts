@@ -1,22 +1,17 @@
 import { v4 as uuidv4 } from 'uuid';
-import { ProductService, Product, StockWithProduct } from '../services/productService';
-import { Logger } from './logger';
-import { ErrorHandler } from './errorHandler';
+import { ProductService, StockWithProduct } from '../services/productService';
+import {reqHandler} from '../utils/reqHandler';
+import { StatusHandler} from '../utils/statusHandler';
 
 const productService = new ProductService();
 
 
-export const handler = async (event:any) => {
-    try {
-        Logger.log(event);
+export const handler = reqHandler(async (event:any) => {
         const body = JSON.parse(event.body || '{}');
         const { title, description, price, count=0 } = body;
 
         if (!title || !description || !price) {
-            return {
-                statusCode: 400,
-                body: JSON.stringify({ message: 'Invalid request, all fields are required' }),
-            };
+            return StatusHandler.BadRequest({ message: 'Invalid request, all fields are required' })
         }
 
         const product: StockWithProduct = {
@@ -29,11 +24,5 @@ export const handler = async (event:any) => {
 
         await productService.createProduct(product);
 
-        return {
-            statusCode: 201,
-            body: JSON.stringify(product),
-        };
-    } catch (error) {
-        return ErrorHandler.handleError(error);
-    }
-};
+        return StatusHandler.Created(product)
+});

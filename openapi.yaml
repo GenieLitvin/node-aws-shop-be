@@ -1,68 +1,93 @@
 openapi: 3.0.0
 info:
   title: Product Service API
-  description: API для управления продуктами
   version: 1.0.0
-
-servers:
-  - url: https://{host}/prod
-    description: Продуктовый сервер
-    variables:
-      host:
-        default: 9x60z5i1uc.execute-api.eu-west-1.amazonaws.com
-
 paths:
   /products:
     get:
-      summary: Получить список продуктов
+      summary: Get list of products
       responses:
         '200':
-          description: Успешный ответ
+          description: A list of products
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Product'
-      tags:
-        - Products
-
+    post:
+      summary: Create a new product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewProduct'
+      responses:
+        '201':
+          description: Product created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Product created successfully
   /products/{id}:
     get:
-      summary: Получить продукт по ID
+      summary: Get product by ID
       parameters:
         - in: path
           name: id
           required: true
           schema:
             type: string
-          description: ID продукта
       responses:
         '200':
-          description: Успешный ответ
+          description: A single product
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Product'
         '404':
-          description: Продукт не найден
-      tags:
-        - Products
-
+          description: Product not found
 components:
   schemas:
     Product:
       type: object
       properties:
         id:
-          type: integer
-          example: 1
-        name:
           type: string
-          example: Product 1
+        title:
+          type: string
         description:
           type: string
-          example: Description 1
         price:
           type: number
-          example: 100
+        count:
+          type: number
+    NewProduct:
+      type: object
+      required:
+        - id
+        - title
+        - description
+        - price
+        - count
+      properties:
+        id:
+          type: string
+          example: '19ba3d6a-f8ed-491b-a192-0a33b71b38c4'
+        title:
+          type: string
+          example: 'Product Title'
+        description:
+          type: string
+          example: 'This product ...'
+        price:
+          type: number
+          example: 200
+        count:
+          type: number
+          example: 10
