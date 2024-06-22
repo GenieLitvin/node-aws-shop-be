@@ -4,9 +4,7 @@ import { StatusHandler } from '../utils/statusHandler';
 
 const productService = new ProductService();
 
-export const handler = reqHandler(async (event:any) => {
-
-    const products = await productService.getProductsList();
-    return StatusHandler.Success(products)
-
+export const handler = reqHandler(async () => {
+  const products = await productService.getProductsList();
+  return StatusHandler.Success(products);
 });
