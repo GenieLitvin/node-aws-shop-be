@@ -6,13 +6,28 @@ import { APIGatewayProxyEvent } from 'aws-lambda';
 
 const productService = new ProductService();
 
+const validator = (body: StockWithProduct) => {
+  const { title, description, price, count } = body;
+
+  if (
+    !title ||
+    !description ||
+    !price ||
+    Number(price) < 0 ||
+    Number(count) < 0
+  ) {
+    return false;
+  }
+  return true;
+};
+
 export const handler = reqHandler(async (event: APIGatewayProxyEvent) => {
   const body = JSON.parse(event.body || '{}');
   const { title, description, price, count = 0 } = body;
 
-  if (!title || !description || !price) {
+  if (!validator(body)) {
     return StatusHandler.BadRequest({
-      message: 'Invalid request, all fields are required',
+      message: 'Invalid request',
     });
   }
 
