@@ -10,7 +10,7 @@ This project is an AWS CDK-based application that deploys an API Gateway with La
 3. Link to Import Product Service API https://tz7z29e0oc.execute-api.eu-west-1.amazonaws.com/prod/
 
 4. Link to FE PR\
-https://dknfbznwqkf8e.cloudfront.net/\
+https://dknfbznwqkf8e.cloudfront.net/admin/products\
 https://github.com/GenieLitvin/nodejs-aws-fe/pull/2
 
 
