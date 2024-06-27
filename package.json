@@ -7,6 +7,7 @@
   "scripts": {
     "build": "node build.js",
     "deploy": "npm run build & cdk deploy",
+    "deploy:import": "npm run build & cdk deploy NodeAwsShopBeImportStack",
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
@@ -24,6 +25,7 @@
     "@typescript-eslint/eslint-plugin": "^7.13.1",
     "@typescript-eslint/parser": "^7.13.1",
     "aws-cdk": "2.144.0",
+    "aws-sdk-client-mock": "^4.0.1",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.29.1",
@@ -38,12 +40,17 @@
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.600.0",
+    "@aws-sdk/client-s3": "^3.600.0",
+    "@aws-sdk/s3-request-presigner": "^3.600.0",
     "@aws-sdk/util-dynamodb": "^3.600.0",
+    "@smithy/util-stream": "^3.0.4",
     "aws-cdk-lib": "2.144.0",
     "aws-lambda": "^1.0.7",
     "constructs": "^10.0.0",
+    "csv-parser": "^3.0.0",
     "esbuild": "^0.21.5",
     "source-map-support": "^0.5.21",
-    "uuid": "^10.0.0"
+    "uuid": "^10.0.0",
+    "zod": "^3.23.8"
   }
 }
