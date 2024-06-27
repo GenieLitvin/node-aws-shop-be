@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
-import { ProductService, StockWithProduct } from '../services/productService';
-import { reqHandler } from '../utils/reqHandler';
-import { StatusHandler } from '../utils/statusHandler';
+import { ProductService, StockWithProduct } from '../productService';
+import { reqHandler } from '../../../utils/reqHandler';
+import { StatusHandler } from '../../../utils/statusHandler';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 
 const productService = new ProductService();

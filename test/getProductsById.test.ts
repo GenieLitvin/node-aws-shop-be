@@ -1,7 +1,7 @@
-import { handler } from '../lambda/getProductsById';
-import { ProductService } from '../services/productService';
+import { handler } from '../services/product/lambda/getProductsById';
+import { ProductService } from '../services/product/productService';
 import { APIGatewayProxyEvent } from 'aws-lambda';
-jest.mock('../services/productService');
+jest.mock('../services/product/productService');
 type PartialAPIGatewayProxyEvent = Partial<APIGatewayProxyEvent>;
 
 describe('getProductsById', () => {
