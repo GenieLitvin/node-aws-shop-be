@@ -24,7 +24,7 @@ export class NodeAwsShopBeImportStack extends cdk.Stack {
       'importProductsFileFn',
       {
         runtime: lambda.Runtime.NODEJS_20_X,
-        code: lambda.Code.fromAsset('dist/import/lambda'),
+        code: lambda.Code.fromAsset('dist/import-service/lambda'),
         handler: 'importProductsFile.handler',
         environment,
       },
@@ -51,7 +51,7 @@ export class NodeAwsShopBeImportStack extends cdk.Stack {
 
     const importFileParser = new lambda.Function(this, 'importFileParserFn', {
       runtime: lambda.Runtime.NODEJS_20_X,
-      code: lambda.Code.fromAsset('dist/import/lambda'),
+      code: lambda.Code.fromAsset('dist/import-service/lambda'),
       handler: 'importFileParser.handler',
       environment,
     });

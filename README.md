@@ -16,10 +16,10 @@ https://github.com/GenieLitvin/nodejs-aws-fe/pull/2
 
 5.  Score: 100 / 100
 #### Task5:
-- [x] Created a new service ```import-service``` with its own AWS CDK Stack ```services/import/node-aws-shop-be-import-stack.ts```.
+- [x] Created a new service ```import-service``` with its own AWS CDK Stack ```./import-service/node-aws-shop-be-import-stack.ts```.
 - [x] In the AWS Console create and configure a new S3 bucket
-- [x] Created a lambda function called  ```services/import/lambda/importProductsFile.ts```
-- [x] Create a lambda function called ```services/import/lambda/importFileParser.ts```
+- [x] Created a lambda function called  ```./import-service/lambda/importProductsFile.ts```
+- [x] Create a lambda function called ```./import-service/lambda/importFileParser.ts```
 
 
 #### Additional task:
