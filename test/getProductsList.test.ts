@@ -1,5 +1,5 @@
-import { handler } from '../services/product/lambda/getProductsList';
-import { ProductService } from '../services/product/productService';
+import { handler } from '../product-service/lambda/getProductsList';
+import { ProductService } from '../product-service/productService';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 
 jest.mock('../services/product/productService');

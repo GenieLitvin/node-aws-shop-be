@@ -8,7 +8,7 @@ import { mockClient } from 'aws-sdk-client-mock';
 import { S3Event } from 'aws-lambda';
 import { createReadStream } from 'fs';
 import { sdkStreamMixin } from '@smithy/util-stream';
-import { handler } from '../services/import/lambda/importFileParser';
+import { handler } from '../import-service/lambda/importFileParser';
 const s3Mock = mockClient(S3Client);
 
 describe('importProductsFile', () => {

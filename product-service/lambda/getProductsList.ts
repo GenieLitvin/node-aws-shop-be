@@ -1,6 +1,6 @@
 import { ProductService } from '../productService';
-import { reqHandler } from '../../../utils/reqHandler';
-import { StatusHandler } from '../../../utils/statusHandler';
+import { reqHandler } from '../../utils/reqHandler';
+import { StatusHandler } from '../../utils/statusHandler';
 
 const productService = new ProductService();
 

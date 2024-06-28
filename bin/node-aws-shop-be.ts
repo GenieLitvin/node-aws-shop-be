@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
-import { NodeAwsShopBeStack } from '../services/product/node-aws-shop-be-stack';
-import { NodeAwsShopBeImportStack } from '../services/import/node-aws-shop-be-import-stack';
+import { NodeAwsShopBeStack } from '../product-service/node-aws-shop-be-stack';
+import { NodeAwsShopBeImportStack } from '../import-service/node-aws-shop-be-import-stack';
 
 const app = new cdk.App();
 new NodeAwsShopBeStack(app, 'NodeAwsShopBeStack', {
