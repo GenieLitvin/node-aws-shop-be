@@ -4,7 +4,7 @@ import {
   CopyObjectCommand,
   DeleteObjectCommand,
 } from '@aws-sdk/client-s3';
-import { S3Event } from 'aws-lambda';
+import { S3Event, S3EventRecord } from 'aws-lambda';
 import { Readable } from 'stream';
 
 import csv from 'csv-parser';
@@ -23,14 +23,15 @@ const parser = async (stream: Readable) => {
   });
 };
 
-export const handler = async (event: S3Event) => {
-  const bucketName = event.Records[0].s3.bucket.name;
-  const objectKey = event.Records[0].s3.object.key;
+const processRecord = async (record: S3EventRecord) => {
+  const bucketName = record.s3.bucket.name;
+  const objectKey = record.s3.object.key;
 
   const params = {
     Bucket: bucketName,
     Key: objectKey,
   };
+
   try {
     const command = new GetObjectCommand(params);
     const data = await s3Client.send(command);
@@ -48,9 +49,19 @@ export const handler = async (event: S3Event) => {
     const deleteCommand = new DeleteObjectCommand(params);
     const { DeleteMarker } = await s3Client.send(deleteCommand);
 
+    console.log(`Processed and deleted ${objectKey}`);
     return DeleteMarker;
   } catch (error) {
-    console.log(error);
+    console.log(`Error processing ${objectKey}:`, error);
+    throw error;
+  }
+};
+
+export const handler = async (event: S3Event) => {
+  try {
+    await Promise.all(event.Records.map((record) => processRecord(record)));
+  } catch (error) {
+    console.error('Error processing records:', error);
     throw error;
   }
 };

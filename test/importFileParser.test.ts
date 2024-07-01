@@ -9,10 +9,11 @@ import { S3Event } from 'aws-lambda';
 import { createReadStream } from 'fs';
 import { sdkStreamMixin } from '@smithy/util-stream';
 import { handler } from '../import-service/lambda/importFileParser';
+
 const s3Mock = mockClient(S3Client);
 
 describe('importProductsFile', () => {
-  it('should return uploadUrl', async () => {
+  it('should process all records in the event', async () => {
     const stream = createReadStream('./test/data/upload.csv');
     const sdkStream = sdkStreamMixin(stream);
 
@@ -25,13 +26,22 @@ describe('importProductsFile', () => {
         {
           s3: {
             bucket: { name: 'node-aws-shop-be-upload' },
-            object: { key: 'uploaded/testUpl.csv' },
+            object: { key: 'uploaded/testUpl1.csv' },
+          },
+        },
+        {
+          s3: {
+            bucket: { name: 'node-aws-shop-be-upload' },
+            object: { key: 'uploaded/testUpl2.csv' },
           },
         },
       ],
     } as unknown as S3Event;
 
-    const result = await handler(event);
-    expect(result).toEqual(true);
+    await expect(handler(event)).resolves.toBeUndefined();
+
+    expect(s3Mock.commandCalls(GetObjectCommand).length).toBe(2);
+    expect(s3Mock.commandCalls(CopyObjectCommand).length).toBe(2);
+    expect(s3Mock.commandCalls(DeleteObjectCommand).length).toBe(2);
   });
 });

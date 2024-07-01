@@ -2,7 +2,7 @@ import { handler } from '../product-service/lambda/getProductsList';
 import { ProductService } from '../product-service/productService';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 
-jest.mock('../services/product/productService');
+jest.mock('../product-service/productService');
 
 describe('getProductsList', () => {
   it('should return a list of products', async () => {
