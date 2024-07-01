@@ -8,6 +8,7 @@
     "build": "node build.js",
     "deploy": "npm run build & cdk deploy",
     "deploy:import": "npm run build & cdk deploy NodeAwsShopBeImportStack",
+    "deploy:product": "npm run build & cdk deploy NodeAwsShopBeStack",
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",

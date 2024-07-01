@@ -34,7 +34,7 @@ export class NodeAwsShopBeStack extends cdk.Stack {
       'getProductsListFn',
       {
         runtime: lambda.Runtime.NODEJS_20_X,
-        code: lambda.Code.fromAsset('dist/product-service'),
+        code: lambda.Code.fromAsset('dist/product-service/lambda'),
         handler: 'getProductsList.handler',
         environment,
       },
@@ -46,7 +46,7 @@ export class NodeAwsShopBeStack extends cdk.Stack {
       'getProductsByIdFn',
       {
         runtime: lambda.Runtime.NODEJS_20_X,
-        code: lambda.Code.fromAsset('dist/product-service'),
+        code: lambda.Code.fromAsset('dist/product-service/lambda'),
         handler: 'getProductsById.handler',
         environment,
       },
@@ -55,7 +55,7 @@ export class NodeAwsShopBeStack extends cdk.Stack {
 
     const createProductFunction = new lambda.Function(this, 'createProductFn', {
       runtime: lambda.Runtime.NODEJS_20_X,
-      code: lambda.Code.fromAsset('dist/product-service'),
+      code: lambda.Code.fromAsset('dist/product-service/lambda'),
       handler: 'createProduct.handler',
       environment,
     });

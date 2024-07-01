@@ -10,6 +10,9 @@ const bucket = process.env.BUCKET_NAME;
 
 export const handler = reqHandler(async (event: APIGatewayProxyEvent) => {
   const fileName = event.queryStringParameters?.name;
+  if (!fileName) {
+    return StatusHandler.BadRequest({ error: 'Missing file name parameter' });
+  }
   const params = {
     Bucket: bucket,
     Key: `uploaded/${fileName}`,
