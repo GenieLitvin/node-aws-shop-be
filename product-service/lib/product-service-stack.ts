@@ -5,7 +5,7 @@ import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as iam from 'aws-cdk-lib/aws-iam';
 
-export class NodeAwsShopBeStack extends cdk.Stack {
+export class ProductServiseStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
@@ -34,7 +34,7 @@ export class NodeAwsShopBeStack extends cdk.Stack {
       'getProductsListFn',
       {
         runtime: lambda.Runtime.NODEJS_20_X,
-        code: lambda.Code.fromAsset('dist/product-service/lambda'),
+        code: lambda.Code.fromAsset('dist'),
         handler: 'getProductsList.handler',
         environment,
       },
@@ -46,7 +46,7 @@ export class NodeAwsShopBeStack extends cdk.Stack {
       'getProductsByIdFn',
       {
         runtime: lambda.Runtime.NODEJS_20_X,
-        code: lambda.Code.fromAsset('dist/product-service/lambda'),
+        code: lambda.Code.fromAsset('dist'),
         handler: 'getProductsById.handler',
         environment,
       },
@@ -55,7 +55,7 @@ export class NodeAwsShopBeStack extends cdk.Stack {
 
     const createProductFunction = new lambda.Function(this, 'createProductFn', {
       runtime: lambda.Runtime.NODEJS_20_X,
-      code: lambda.Code.fromAsset('dist/product-service/lambda'),
+      code: lambda.Code.fromAsset('dist'),
       handler: 'createProduct.handler',
       environment,
     });

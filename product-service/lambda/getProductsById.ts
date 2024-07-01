@@ -1,8 +1,8 @@
-import { ProductService } from '../productService';
-import { reqHandler } from '../../utils/reqHandler';
-import { StatusHandler } from '../../utils/statusHandler';
+import { ProductRepository } from '../repository/product';
+import { reqHandler } from '../utils/reqHandler';
+import { StatusHandler } from '../utils/statusHandler';
 import { APIGatewayProxyEvent } from 'aws-lambda';
-const productService = new ProductService();
+const productRepository = new ProductRepository();
 
 export const handler = reqHandler(async (event: APIGatewayProxyEvent) => {
   const pathParameters = event.pathParameters;
@@ -11,7 +11,7 @@ export const handler = reqHandler(async (event: APIGatewayProxyEvent) => {
   }
 
   const productId = pathParameters.id;
-  const product = await productService.getProductById(productId);
+  const product = await productRepository.getProductById(productId);
   if (product) {
     return StatusHandler.Success(product);
   } else {

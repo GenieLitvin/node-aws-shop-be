@@ -1,10 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
-import { ProductService, StockWithProduct } from '../productService';
-import { reqHandler } from '../../utils/reqHandler';
-import { StatusHandler } from '../../utils/statusHandler';
+import { ProductRepository, StockWithProduct } from '../repository/product';
+import { reqHandler } from '../utils/reqHandler';
+import { StatusHandler } from '../utils/statusHandler';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 
-const productService = new ProductService();
+const productRepository = new ProductRepository();
 
 const validator = (body: StockWithProduct) => {
   const { title, description, price, count } = body;
@@ -39,7 +39,7 @@ export const handler = reqHandler(async (event: APIGatewayProxyEvent) => {
     count: parseInt(count, 10),
   };
 
-  await productService.createProduct(product);
+  await productRepository.createProduct(product);
 
   return StatusHandler.Created(product);
 });

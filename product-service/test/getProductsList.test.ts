@@ -1,8 +1,8 @@
-import { handler } from '../product-service/lambda/getProductsList';
-import { ProductService } from '../product-service/productService';
+import { handler } from '../lambda/getProductsList';
+import { ProductRepository } from '../repository/product';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 
-jest.mock('../product-service/productService');
+jest.mock('../repository/product');
 
 describe('getProductsList', () => {
   it('should return a list of products', async () => {
@@ -22,7 +22,7 @@ describe('getProductsList', () => {
       },
     ];
 
-    (ProductService.prototype.getProductsList as jest.Mock).mockReturnValue(
+    (ProductRepository.prototype.getProductsList as jest.Mock).mockReturnValue(
       mockProducts,
     );
 

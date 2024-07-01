@@ -5,7 +5,7 @@ import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import { S3EventSourceV2 } from 'aws-cdk-lib/aws-lambda-event-sources';
 
-export class NodeAwsShopBeImportStack extends cdk.Stack {
+export class ImportServiceStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
@@ -24,7 +24,7 @@ export class NodeAwsShopBeImportStack extends cdk.Stack {
       'importProductsFileFn',
       {
         runtime: lambda.Runtime.NODEJS_20_X,
-        code: lambda.Code.fromAsset('dist/import-service/lambda'),
+        code: lambda.Code.fromAsset('dist'),
         handler: 'importProductsFile.handler',
         environment,
       },
@@ -51,7 +51,7 @@ export class NodeAwsShopBeImportStack extends cdk.Stack {
 
     const importFileParser = new lambda.Function(this, 'importFileParserFn', {
       runtime: lambda.Runtime.NODEJS_20_X,
-      code: lambda.Code.fromAsset('dist/import-service/lambda'),
+      code: lambda.Code.fromAsset('dist'),
       handler: 'importFileParser.handler',
       environment,
     });

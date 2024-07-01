@@ -21,7 +21,7 @@ export interface Stock {
 
 export type StockWithProduct = Product & Omit<Stock, 'product_id'>;
 
-export class ProductService {
+export class ProductRepository {
   private products: Product[];
   private stockWithProduct: StockWithProduct[];
 

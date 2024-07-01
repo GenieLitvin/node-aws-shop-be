@@ -1,4 +1,4 @@
-import { handler } from '../import-service/lambda/importProductsFile';
+import { handler } from '../lambda/importProductsFile';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { mockClient } from 'aws-sdk-client-mock';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
