@@ -13,11 +13,7 @@ import csv from 'csv-parser';
 const s3Client = new S3Client();
 const sqsClient = new SQSClient();
 type product = {
-  ID: string;
-  TITLE: string;
-  DESCRIPTION: string;
-  PRICE: string;
-  COUNT: string;
+  [key: string]: string;
 };
 
 const send = async (data: product) => {
