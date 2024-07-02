@@ -1,4 +1,3 @@
-//import ProductsData from './products.json'
 import {
   DynamoDBClient,
   ScanCommand,
@@ -7,19 +6,7 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { unmarshall, marshall } from '@aws-sdk/util-dynamodb';
 
-export interface Product {
-  id: string;
-  title: string;
-  description: string;
-  price: number;
-}
-
-export interface Stock {
-  product_id: string;
-  count: number;
-}
-
-export type StockWithProduct = Product & Omit<Stock, 'product_id'>;
+import { Product, StockWithProduct, Stock } from '../types/product';
 
 export class ProductRepository {
   private products: Product[];

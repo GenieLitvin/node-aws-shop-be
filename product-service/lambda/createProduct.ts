@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
-import { ProductRepository, StockWithProduct } from '../repository/product';
+import { ProductRepository } from '../repository/product';
+import { StockWithProduct } from '../types/product';
 import { reqHandler } from '../utils/reqHandler';
 import { StatusHandler } from '../utils/statusHandler';
 import { APIGatewayProxyEvent } from 'aws-lambda';

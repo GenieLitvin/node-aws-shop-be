@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+export const validateProduct = (inputs: unknown) => ProductSchema.parse(inputs);
+
 export const ProductSchema = z.object({
   title: z.string(),
   description: z.string(),

@@ -37,8 +37,9 @@
     "typescript": "~5.4.5"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.600.0",
+    "@aws-sdk/client-dynamodb": "^3.606.0",
     "@aws-sdk/client-s3": "^3.600.0",
+    "@aws-sdk/client-sqs": "^3.606.0",
     "@aws-sdk/s3-request-presigner": "^3.600.0",
     "@aws-sdk/util-dynamodb": "^3.600.0",
     "@smithy/util-stream": "^3.0.4",

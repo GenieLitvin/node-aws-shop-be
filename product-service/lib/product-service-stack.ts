@@ -4,6 +4,8 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as sqs from 'aws-cdk-lib/aws-sqs';
+import * as eventsources from 'aws-cdk-lib/aws-lambda-event-sources';
 
 export class ProductServiseStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -27,6 +29,7 @@ export class ProductServiseStack extends cdk.Stack {
     const environment = {
       PRODUCT_TABLE_NAME: productTable.tableName,
       STOCK_TABLE_NAME: stockTable.tableName,
+      SQS_NAME: 'catalogItemsQueue',
     };
 
     const getProductsListFunction = new lambda.Function(
@@ -99,5 +102,23 @@ export class ProductServiseStack extends cdk.Stack {
         methodResponses: [{ statusCode: '200' }],
       },
     );
+
+    const catalogSqs = new sqs.Queue(this, 'catalogItemsQueue');
+    const catalogBatchProcessFunction = new lambda.Function(
+      this,
+      'catalogBatchProcessFn',
+      {
+        runtime: lambda.Runtime.NODEJS_20_X,
+        code: lambda.Code.fromAsset('dist'),
+        handler: 'catalogBatchProcess.handler',
+        environment,
+      },
+    );
+    catalogBatchProcessFunction.addEventSource(
+      new eventsources.SqsEventSource(catalogSqs, {
+        batchSize: 5,
+      }),
+    );
+    catalogBatchProcessFunction.addToRolePolicy(dynamoPolicy);
   }
 }
