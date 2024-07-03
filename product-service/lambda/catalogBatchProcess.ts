@@ -3,8 +3,10 @@ import { ProductRepository } from '../repository/product';
 import { SQSEvent, SQSRecord } from 'aws-lambda';
 import { ProductSchema } from '../utils/validator';
 import { StockWithProduct } from '../types/product';
+import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
 
 const productRepository = new ProductRepository();
+export const snsClient = new SNSClient({});
 
 const processRecord = async (record: SQSRecord) => {
   const { title, description, price, count = 0 } = JSON.parse(record.body);
@@ -27,6 +29,13 @@ export const handler = async (event: SQSEvent) => {
   const records = event.Records;
   try {
     await Promise.all(records.map((record) => processRecord(record)));
+    const response = await snsClient.send(
+      new PublishCommand({
+        Message: 'new products in shop!',
+        TopicArn: process.env.SNS_TOPIC_ARN,
+      }),
+    );
+    console.log(response);
   } catch (error) {
     console.error('Error processing records:', error);
     throw error;

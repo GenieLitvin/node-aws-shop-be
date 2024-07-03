@@ -5,12 +5,14 @@ import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as sqs from 'aws-cdk-lib/aws-sqs';
+import * as sns from 'aws-cdk-lib/aws-sns';
 import * as eventsources from 'aws-cdk-lib/aws-lambda-event-sources';
 
 export class ProductServiseStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
+    //dynamodb
     const productTable = dynamodb.TableV2.fromTableName(
       this,
       'ProductTable',
@@ -26,10 +28,16 @@ export class ProductServiseStack extends cdk.Stack {
       actions: ['dynamodb:*'],
       resources: [productTable.tableArn, stockTable.tableArn],
     });
+    const createProductTopic = new sns.Topic(this, 'createProductTopic', {
+      signatureVersion: '2',
+    });
+    const catalogSqs = new sqs.Queue(this, 'catalogItemsQueue');
+
     const environment = {
       PRODUCT_TABLE_NAME: productTable.tableName,
       STOCK_TABLE_NAME: stockTable.tableName,
-      SQS_NAME: 'catalogItemsQueue',
+      SQS_NAME: catalogSqs.queueName,
+      SNS_TOPIC_ARN: createProductTopic.topicArn,
     };
 
     const getProductsListFunction = new lambda.Function(
@@ -65,6 +73,7 @@ export class ProductServiseStack extends cdk.Stack {
 
     createProductFunction.addToRolePolicy(dynamoPolicy);
 
+    //RestAPI
     const api = new apigateway.LambdaRestApi(this, 'ProductsApi', {
       handler: getProductsListFunction,
       proxy: false,
@@ -103,7 +112,6 @@ export class ProductServiseStack extends cdk.Stack {
       },
     );
 
-    const catalogSqs = new sqs.Queue(this, 'catalogItemsQueue');
     const catalogBatchProcessFunction = new lambda.Function(
       this,
       'catalogBatchProcessFn',
@@ -120,5 +128,17 @@ export class ProductServiseStack extends cdk.Stack {
       }),
     );
     catalogBatchProcessFunction.addToRolePolicy(dynamoPolicy);
+
+    // SNS Subscription
+    new sns.Subscription(this, 'Subscription', {
+      endpoint: 'genie.litvin@gmail.com',
+      protocol: sns.SubscriptionProtocol.EMAIL,
+      topic: createProductTopic,
+    });
+    const snsPolicy = new iam.PolicyStatement({
+      actions: ['sns:Publish'],
+      resources: [createProductTopic.topicArn],
+    });
+    catalogBatchProcessFunction.addToRolePolicy(snsPolicy);
   }
 }
