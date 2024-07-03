@@ -20,21 +20,32 @@ const processRecord = async (record: SQSRecord) => {
   try {
     ProductSchema.parse(product);
     await productRepository.createProduct(product);
+    notificate(product);
   } catch (error) {
     console.log('Invalid product data:', error);
   }
 };
 
+const notificate = async (product: StockWithProduct) => {
+  await snsClient.send(
+    new PublishCommand({
+      Message: `New products in shop: ${product.title}`,
+      MessageAttributes: {
+        price: {
+          DataType: 'Number',
+          StringValue: product.price.toString(),
+        },
+      },
+      TopicArn: process.env.SNS_TOPIC_ARN,
+    }),
+  );
+};
+
 export const handler = async (event: SQSEvent) => {
   const records = event.Records;
+  //console.log('new RECORDS', records);
   try {
     await Promise.all(records.map((record) => processRecord(record)));
-    await snsClient.send(
-      new PublishCommand({
-        Message: 'new products in shop!',
-        TopicArn: process.env.SNS_TOPIC_ARN,
-      }),
-    );
   } catch (error) {
     console.error('Error processing records:', error);
     throw error;

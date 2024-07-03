@@ -28,6 +28,7 @@ export class ProductServiseStack extends cdk.Stack {
       actions: ['dynamodb:*'],
       resources: [productTable.tableArn, stockTable.tableArn],
     });
+    //sns
     const createProductTopic = new sns.Topic(this, 'createProductTopic', {
       signatureVersion: '2',
     });
@@ -130,11 +131,27 @@ export class ProductServiseStack extends cdk.Stack {
     catalogBatchProcessFunction.addToRolePolicy(dynamoPolicy);
 
     // SNS Subscription
-    new sns.Subscription(this, 'Subscription', {
+    new sns.Subscription(this, 'Subscription1', {
       endpoint: 'genie.litvin@gmail.com',
       protocol: sns.SubscriptionProtocol.EMAIL,
       topic: createProductTopic,
+      filterPolicy: {
+        price: sns.SubscriptionFilter.numericFilter({
+          greaterThan: 40,
+        }),
+      },
     });
+    new sns.Subscription(this, 'Subscription2', {
+      endpoint: 'yauheniya8@gmail.com',
+      protocol: sns.SubscriptionProtocol.EMAIL,
+      topic: createProductTopic,
+      filterPolicy: {
+        price: sns.SubscriptionFilter.numericFilter({
+          lessThan: 40,
+        }),
+      },
+    });
+
     const snsPolicy = new iam.PolicyStatement({
       actions: ['sns:Publish'],
       resources: [createProductTopic.topicArn],

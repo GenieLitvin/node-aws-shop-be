@@ -13,7 +13,7 @@ export class ImportServiceStack extends cdk.Stack {
     const catalogItemsQueue = sqs.Queue.fromQueueArn(
       this,
       'catalogItemsQueue',
-      'arn:aws:sqs:eu-west-1:128706803547:ProductServiseStack-catalogItemsQueue79451959-hJtazODAuJkP',
+      'arn:aws:sqs:eu-west-1:128706803547:ProductServiseStack-catalogItemsQueue79451959-XDQn7PjRMmyR',
     );
     const environment = {
       BUCKET_NAME: 'node-aws-shop-be-upload1',

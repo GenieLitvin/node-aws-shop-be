@@ -6,7 +6,8 @@ import {
 } from '@aws-sdk/client-s3';
 import { S3Event, S3EventRecord } from 'aws-lambda';
 import { Readable } from 'stream';
-import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
+import { SQSClient, SendMessageBatchCommand } from '@aws-sdk/client-sqs';
+import { v4 as uuidv4 } from 'uuid';
 
 import csv from 'csv-parser';
 
@@ -16,19 +17,23 @@ type product = {
   [key: string]: string;
 };
 
-const send = async (data: product) => {
-  try {
-    const command = new SendMessageCommand({
+const sendProducts = async (products: product[]) => {
+  for (let i = 0; i < products.length; ) {
+    const entries = [];
+
+    for (let j = 0; j < 10 && i < products.length; i++, j++) {
+      entries.push({
+        Id: uuidv4(),
+        MessageBody: JSON.stringify(products[i]),
+      });
+    }
+    const command = new SendMessageBatchCommand({
       QueueUrl: process.env.SQS_URL,
-      MessageBody: JSON.stringify(data),
+      Entries: entries,
     });
     await sqsClient.send(command);
-  } catch (error) {
-    console.log(`sqsClient error ${error}`);
-    throw error;
   }
 };
-
 const parser = async (stream: Readable): Promise<product[]> => {
   const result: product[] = [];
   return new Promise((resolve) => {
@@ -55,9 +60,8 @@ const processRecord = async (record: S3EventRecord) => {
     const data = await s3Client.send(command);
 
     const stream = data.Body as Readable;
-    const result: product[] = await parser(stream);
-
-    await Promise.all(result.map((record: product) => send(record)));
+    const products: product[] = await parser(stream);
+    await sendProducts(products);
 
     const copyCommand = new CopyObjectCommand({
       Bucket: bucketName,
