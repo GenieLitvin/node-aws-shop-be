@@ -21,7 +21,7 @@ const processRecord = async (record: SQSRecord) => {
     ProductSchema.parse(product);
     await productRepository.createProduct(product);
   } catch (error) {
-    console.error('Invalid product data:', error);
+    console.log('Invalid product data:', error);
   }
 };
 
@@ -29,13 +29,12 @@ export const handler = async (event: SQSEvent) => {
   const records = event.Records;
   try {
     await Promise.all(records.map((record) => processRecord(record)));
-    const response = await snsClient.send(
+    await snsClient.send(
       new PublishCommand({
         Message: 'new products in shop!',
         TopicArn: process.env.SNS_TOPIC_ARN,
       }),
     );
-    console.log(response);
   } catch (error) {
     console.error('Error processing records:', error);
     throw error;
