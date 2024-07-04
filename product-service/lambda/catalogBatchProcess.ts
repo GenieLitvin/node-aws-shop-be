@@ -20,7 +20,7 @@ const processRecord = async (record: SQSRecord) => {
   try {
     ProductSchema.parse(product);
     await productRepository.createProduct(product);
-    notificate(product);
+    await notificate(product);
   } catch (error) {
     console.log('Invalid product data:', error);
   }
