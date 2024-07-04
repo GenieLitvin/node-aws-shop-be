@@ -27,18 +27,24 @@ const processRecord = async (record: SQSRecord) => {
 };
 
 const notificate = async (product: StockWithProduct) => {
-  await snsClient.send(
-    new PublishCommand({
-      Message: `New products in shop: ${product.title}`,
-      MessageAttributes: {
-        price: {
-          DataType: 'Number',
-          StringValue: product.price.toString(),
+  try{
+    await snsClient.send(
+      new PublishCommand({
+        Message: `New products in shop: ${product.title}, price : ${product.price}`,
+        MessageAttributes: {
+          price: {
+            DataType: 'Number',
+            StringValue: product.price.toString(),
+          },
         },
-      },
-      TopicArn: process.env.SNS_TOPIC_ARN,
-    }),
-  );
+        TopicArn: process.env.SNS_TOPIC_ARN,
+      }),
+    );
+    //console.log('notification', product);
+  }catch (error) {
+    console.log('notification error:', error);
+  }
+  
 };
 
 export const handler = async (event: SQSEvent) => {
