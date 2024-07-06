@@ -1,7 +1,7 @@
-import { handler } from '../product-service/lambda/getProductsById';
-import { ProductService } from '../product-service/productService';
+import { handler } from '../lambda/getProductsById';
+import { ProductRepository } from '../repository/product';
 import { APIGatewayProxyEvent } from 'aws-lambda';
-jest.mock('../product-service/productService');
+jest.mock('../repository/product');
 type PartialAPIGatewayProxyEvent = Partial<APIGatewayProxyEvent>;
 
 describe('getProductsById', () => {
@@ -13,7 +13,7 @@ describe('getProductsById', () => {
       price: 100,
     };
 
-    (ProductService.prototype.getProductById as jest.Mock).mockReturnValue(
+    (ProductRepository.prototype.getProductById as jest.Mock).mockReturnValue(
       mockProduct,
     );
 
@@ -29,7 +29,7 @@ describe('getProductsById', () => {
   });
 
   it('should return 404 if product not found', async () => {
-    (ProductService.prototype.getProductById as jest.Mock).mockReturnValue(
+    (ProductRepository.prototype.getProductById as jest.Mock).mockReturnValue(
       undefined,
     );
 

@@ -4,13 +4,20 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import { S3EventSourceV2 } from 'aws-cdk-lib/aws-lambda-event-sources';
-
-export class NodeAwsShopBeImportStack extends cdk.Stack {
+import * as iam from 'aws-cdk-lib/aws-iam';
+import * as sqs from 'aws-cdk-lib/aws-sqs';
+export class ImportServiceStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
+    const catalogItemsQueue = sqs.Queue.fromQueueArn(
+      this,
+      'catalogItemsQueue',
+      'arn:aws:sqs:eu-west-1:128706803547:ProductServiseStack-catalogItemsQueue79451959-XDQn7PjRMmyR',
+    );
     const environment = {
-      BUCKET_NAME: 'node-aws-shop-be-upload',
+      BUCKET_NAME: 'node-aws-shop-be-upload1',
+      SQS_URL: catalogItemsQueue.queueUrl,
     };
 
     const bucket = s3.Bucket.fromBucketName(
@@ -24,7 +31,7 @@ export class NodeAwsShopBeImportStack extends cdk.Stack {
       'importProductsFileFn',
       {
         runtime: lambda.Runtime.NODEJS_20_X,
-        code: lambda.Code.fromAsset('dist/import-service/lambda'),
+        code: lambda.Code.fromAsset('dist'),
         handler: 'importProductsFile.handler',
         environment,
       },
@@ -51,7 +58,7 @@ export class NodeAwsShopBeImportStack extends cdk.Stack {
 
     const importFileParser = new lambda.Function(this, 'importFileParserFn', {
       runtime: lambda.Runtime.NODEJS_20_X,
-      code: lambda.Code.fromAsset('dist/import-service/lambda'),
+      code: lambda.Code.fromAsset('dist'),
       handler: 'importFileParser.handler',
       environment,
     });
@@ -62,5 +69,12 @@ export class NodeAwsShopBeImportStack extends cdk.Stack {
     });
     importFileParser.addEventSource(eventS3);
     bucket.grantReadWrite(importFileParser);
+
+    //policy to send data to sqs
+    const sqsPolicy = new iam.PolicyStatement({
+      actions: ['sqs:sendmessage'],
+      resources: [catalogItemsQueue.queueArn],
+    });
+    importFileParser.addToRolePolicy(sqsPolicy);
   }
 }

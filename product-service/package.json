@@ -1,18 +1,15 @@
 {
-  "name": "node-aws-shop-be",
+  "name": "product-service",
   "version": "0.1.0",
   "bin": {
-    "node-aws-shop-be": "bin/node-aws-shop-be.js"
+    "product-service": "bin/deploy.js"
   },
   "scripts": {
     "build": "node build.js",
     "deploy": "npm run build & cdk deploy",
-    "deploy:import": "npm run build & cdk deploy NodeAwsShopBeImportStack",
-    "deploy:product": "npm run build & cdk deploy NodeAwsShopBeStack",
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
-    "start-local": "cdk synth & sam local start-api -t ./cdk.out/NodeAwsShopBeStack.template.json",
     "db-fill": "aws dynamodb batch-write-item --request-items file://./data/data.json",
     "lint": "eslint '**/*.ts'",
     "lint:fix": "eslint '**/*.ts' --fix",
@@ -40,8 +37,10 @@
     "typescript": "~5.4.5"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.600.0",
+    "@aws-sdk/client-dynamodb": "^3.606.0",
     "@aws-sdk/client-s3": "^3.600.0",
+    "@aws-sdk/client-sns": "^3.606.0",
+    "@aws-sdk/client-sqs": "^3.606.0",
     "@aws-sdk/s3-request-presigner": "^3.600.0",
     "@aws-sdk/util-dynamodb": "^3.600.0",
     "@smithy/util-stream": "^3.0.4",

@@ -3,7 +3,7 @@ const esbuild = require('esbuild');
 
 esbuild
   .build({
-    entryPoints: ['./*-service/**/lambda/*.ts'],
+    entryPoints: ['./lambda/*.ts'],
     bundle: true,
     platform: 'node',
     target: 'node14',
