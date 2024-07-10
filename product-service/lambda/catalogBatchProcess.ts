@@ -27,7 +27,7 @@ const processRecord = async (record: SQSRecord) => {
 };
 
 const notificate = async (product: StockWithProduct) => {
-  try{
+  try {
     await snsClient.send(
       new PublishCommand({
         Message: `New products in shop: ${product.title}, price : ${product.price}`,
@@ -41,10 +41,9 @@ const notificate = async (product: StockWithProduct) => {
       }),
     );
     //console.log('notification', product);
-  }catch (error) {
+  } catch (error) {
     console.log('notification error:', error);
   }
-  
 };
 
 export const handler = async (event: SQSEvent) => {

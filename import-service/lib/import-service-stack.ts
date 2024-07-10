@@ -16,8 +16,9 @@ export class ImportServiceStack extends cdk.Stack {
       'arn:aws:sqs:eu-west-1:128706803547:ProductServiseStack-catalogItemsQueue79451959-XDQn7PjRMmyR',
     );
     const environment = {
-      BUCKET_NAME: 'node-aws-shop-be-upload1',
+      BUCKET_NAME: 'node-aws-shop-be-upload',
       SQS_URL: catalogItemsQueue.queueUrl,
+      LAMBDA_AUTH: '',
     };
 
     const bucket = s3.Bucket.fromBucketName(
@@ -38,7 +39,7 @@ export class ImportServiceStack extends cdk.Stack {
     );
     bucket.grantReadWrite(importProductsFile);
 
-    const api = new apigateway.LambdaRestApi(this, 'ProductsImportApi', {
+    const api = new apigateway.LambdaRestApi(this, 'ProductsImportApi1', {
       handler: importProductsFile,
       proxy: false,
       defaultCorsPreflightOptions: {
@@ -48,15 +49,32 @@ export class ImportServiceStack extends cdk.Stack {
       },
     });
 
+    //lambda authorizer
+    const authorizationFn = lambda.Function.fromFunctionName(
+      this,
+      'authorizationFn',
+      'AuthorizationServiceStack-authorizationFnFB5C6175-FeykOLilts1M',
+    );
+    // authorizer
+    const authorizer = new apigateway.TokenAuthorizer(
+      this,
+      'importAuthorizer',
+      {
+        handler: authorizationFn,
+      },
+    );
+
     const importResource = api.root.addResource('import');
     importResource.addMethod('GET', undefined, {
       methodResponses: [{ statusCode: '200' }],
       requestParameters: {
         'method.request.querystring.name': true,
       },
+      authorizer: authorizer,
+      authorizationType: apigateway.AuthorizationType.CUSTOM,
     });
 
-    const importFileParser = new lambda.Function(this, 'importFileParserFn', {
+    const importFileParser = new lambda.Function(this, 'importFileParserFn1', {
       runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset('dist'),
       handler: 'importFileParser.handler',
