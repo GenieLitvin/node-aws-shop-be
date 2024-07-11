@@ -3,9 +3,11 @@ import { Construct } from 'constructs';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as s3 from 'aws-cdk-lib/aws-s3';
+
 import { S3EventSourceV2 } from 'aws-cdk-lib/aws-lambda-event-sources';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as sqs from 'aws-cdk-lib/aws-sqs';
+
 export class ImportServiceStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
@@ -13,12 +15,13 @@ export class ImportServiceStack extends cdk.Stack {
     const catalogItemsQueue = sqs.Queue.fromQueueArn(
       this,
       'catalogItemsQueue',
-      'arn:aws:sqs:eu-west-1:128706803547:ProductServiseStack-catalogItemsQueue79451959-XDQn7PjRMmyR',
+      'arn:aws:sqs:eu-west-1:128706803547:ProductServiseStack-catalogItemsQueue79451959-MwCvEo7dwg7F',
     );
     const environment = {
       BUCKET_NAME: 'node-aws-shop-be-upload',
       SQS_URL: catalogItemsQueue.queueUrl,
-      LAMBDA_AUTH: '',
+      LAMBDA_AUTH_NAME:
+        'AuthorizationServiceStack-authorizationFnFB5C6175-LcUoFekEXrhF',
     };
 
     const bucket = s3.Bucket.fromBucketName(
@@ -39,23 +42,30 @@ export class ImportServiceStack extends cdk.Stack {
     );
     bucket.grantReadWrite(importProductsFile);
 
-    const api = new apigateway.LambdaRestApi(this, 'ProductsImportApi1', {
+    const api = new apigateway.LambdaRestApi(this, 'ProductsImportApi', {
       handler: importProductsFile,
       proxy: false,
       defaultCorsPreflightOptions: {
         allowOrigins: apigateway.Cors.ALL_ORIGINS,
         allowMethods: apigateway.Cors.ALL_METHODS, // ALLOW GET, POST, PUT, DELETE, etc.
-        allowHeaders: ['Content-Type'],
+        allowHeaders: [
+          'Content-Type',
+          'X-Amz-Date',
+          'Authorization',
+          'X-Api-Key',
+          'X-Amz-Security-Token',
+        ],
       },
     });
 
-    //lambda authorizer
+    // Lambda authorizer
     const authorizationFn = lambda.Function.fromFunctionName(
       this,
       'authorizationFn',
-      'AuthorizationServiceStack-authorizationFnFB5C6175-FeykOLilts1M',
+      environment.LAMBDA_AUTH_NAME,
     );
-    // authorizer
+
+    // Authorizer
     const authorizer = new apigateway.TokenAuthorizer(
       this,
       'importAuthorizer',
@@ -74,7 +84,7 @@ export class ImportServiceStack extends cdk.Stack {
       authorizationType: apigateway.AuthorizationType.CUSTOM,
     });
 
-    const importFileParser = new lambda.Function(this, 'importFileParserFn1', {
+    const importFileParser = new lambda.Function(this, 'importFileParserFn', {
       runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset('dist'),
       handler: 'importFileParser.handler',
@@ -88,11 +98,44 @@ export class ImportServiceStack extends cdk.Stack {
     importFileParser.addEventSource(eventS3);
     bucket.grantReadWrite(importFileParser);
 
-    //policy to send data to sqs
+    // Policy to send data to SQS
     const sqsPolicy = new iam.PolicyStatement({
-      actions: ['sqs:sendmessage'],
+      actions: ['sqs:SendMessage'],
       resources: [catalogItemsQueue.queueArn],
     });
     importFileParser.addToRolePolicy(sqsPolicy);
+
+    // Add GatewayResponses for 401 and 403 errors with CORS headers
+    new apigateway.CfnGatewayResponse(this, 'UnauthorizedResponse', {
+      restApiId: api.restApiId,
+      responseType: 'UNAUTHORIZED',
+      statusCode: '401',
+      responseParameters: {
+        'gatewayresponse.header.Access-Control-Allow-Origin': "'*'",
+        'gatewayresponse.header.Access-Control-Allow-Headers':
+          "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+        'gatewayresponse.header.Access-Control-Allow-Methods':
+          "'GET,OPTIONS,POST,PUT,DELETE'",
+      },
+      responseTemplates: {
+        'application/json': '{"message": "Unauthorized"}',
+      },
+    });
+
+    new apigateway.CfnGatewayResponse(this, 'AccessDeniedResponse', {
+      restApiId: api.restApiId,
+      responseType: 'ACCESS_DENIED',
+      statusCode: '403',
+      responseParameters: {
+        'gatewayresponse.header.Access-Control-Allow-Origin': "'*'",
+        'gatewayresponse.header.Access-Control-Allow-Headers':
+          "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+        'gatewayresponse.header.Access-Control-Allow-Methods':
+          "'GET,OPTIONS,POST,PUT,DELETE'",
+      },
+      responseTemplates: {
+        'application/json': '{"message": "Access Denied"}',
+      },
+    });
   }
 }

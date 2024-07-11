@@ -1,15 +1,25 @@
-import { Context, Callback, APIGatewayTokenAuthorizerEvent } from 'aws-lambda';
+import {
+  Context,
+  Callback,
+  APIGatewayTokenAuthorizerEvent,
+  APIGatewayAuthorizerResult,
+} from 'aws-lambda';
 
 export const handler = (
   event: APIGatewayTokenAuthorizerEvent,
   ctx: Context,
-  cb: Callback,
+  cb: Callback<APIGatewayAuthorizerResult>,
 ) => {
   try {
-    console.log('Event:', event);
-    console.log('passw:', process.env.GenieLitvin);
-    if (event['type'] != 'TOKEN') cb('Unauthorized!');
+    if (event['type'] !== 'TOKEN') {
+      return cb(null, generatePolicy('user', event.methodArn, 'Deny', 401));
+    }
+
     const authToken = event.authorizationToken;
+
+    if (!authToken) {
+      return cb(null, generatePolicy('user', event.methodArn, 'Deny', 401));
+    }
 
     const encodedCreds = authToken.split(' ')[1];
     const buff = Buffer.from(encodedCreds, 'base64');
@@ -17,11 +27,19 @@ export const handler = (
     const username = plainCreds[0];
     const password = plainCreds[1];
     const storedUserPassord = process.env[username];
-    const effect =
-      !storedUserPassord || storedUserPassord != password ? 'Deny' : 'Allow';
-    const policy = generatePolicy(encodedCreds, event.methodArn, effect);
+    //console.log('POLIC:', storedUserPassord, password, username, encodedCreds);
+    if (!storedUserPassord || storedUserPassord !== password) {
+      return cb(
+        null,
+        generatePolicy(encodedCreds, event.methodArn, 'Deny', 403),
+      );
+    }
+
+    const policy = generatePolicy(encodedCreds, event.methodArn, 'Allow');
+
     cb(null, policy);
   } catch (err) {
+    console.log('MyError:', err);
     cb('Error');
   }
 };
@@ -29,8 +47,9 @@ export const handler = (
 const generatePolicy = (
   principalId: string,
   resource: string,
-  effect = 'Allow',
-) => {
+  effect: 'Allow' | 'Deny',
+  statusCode?: number,
+): APIGatewayAuthorizerResult => {
   return {
     principalId: principalId,
     policyDocument: {
@@ -42,6 +61,9 @@ const generatePolicy = (
           Resource: resource,
         },
       ],
+    },
+    context: {
+      statusCode: statusCode || (effect === 'Allow' ? 200 : 403),
     },
   };
 };

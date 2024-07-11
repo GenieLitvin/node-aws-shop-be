@@ -13,6 +13,6 @@ new AuthorizationServiceStack(app, 'AuthorizationServiceStack',{
       account: process.env.CDK_DEFAULT_ACCOUNT,
       region: process.env.CDK_DEFAULT_REGION,
     },
-    environmentVariables: {GenieLitvin: process.env.GenieLitvin}, // Передаем все переменные окружения
+    environmentVariables: {GenieLitvin: process.env.GenieLitvin},
 
 }as any)
