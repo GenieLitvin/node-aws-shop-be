@@ -3,7 +3,6 @@ import { Construct } from 'constructs';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as s3 from 'aws-cdk-lib/aws-s3';
-
 import { S3EventSourceV2 } from 'aws-cdk-lib/aws-lambda-event-sources';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as sqs from 'aws-cdk-lib/aws-sqs';
@@ -17,6 +16,7 @@ export class ImportServiceStack extends cdk.Stack {
       'catalogItemsQueue',
       'arn:aws:sqs:eu-west-1:128706803547:ProductServiseStack-catalogItemsQueue79451959-MwCvEo7dwg7F',
     );
+
     const environment = {
       BUCKET_NAME: 'node-aws-shop-be-upload',
       SQS_URL: catalogItemsQueue.queueUrl,
@@ -76,7 +76,17 @@ export class ImportServiceStack extends cdk.Stack {
 
     const importResource = api.root.addResource('import');
     importResource.addMethod('GET', undefined, {
-      methodResponses: [{ statusCode: '200' }],
+      methodResponses: [
+        { statusCode: '200' },
+        {
+          statusCode: '401',
+          responseModels: { 'application/json': apigateway.Model.EMPTY_MODEL },
+        },
+        {
+          statusCode: '403',
+          responseModels: { 'application/json': apigateway.Model.EMPTY_MODEL },
+        },
+      ],
       requestParameters: {
         'method.request.querystring.name': true,
       },
