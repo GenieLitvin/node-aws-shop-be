@@ -86,6 +86,10 @@ export class ImportServiceStack extends cdk.Stack {
           statusCode: '403',
           responseModels: { 'application/json': apigateway.Model.EMPTY_MODEL },
         },
+        {
+          statusCode: '500',
+          responseModels: { 'application/json': apigateway.Model.EMPTY_MODEL },
+        },
       ],
       requestParameters: {
         'method.request.querystring.name': true,
@@ -115,18 +119,19 @@ export class ImportServiceStack extends cdk.Stack {
     });
     importFileParser.addToRolePolicy(sqsPolicy);
 
+    const respParameters = {
+      'gatewayresponse.header.Access-Control-Allow-Origin': "'*'",
+      'gatewayresponse.header.Access-Control-Allow-Headers':
+        "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+      'gatewayresponse.header.Access-Control-Allow-Methods':
+        "'GET,OPTIONS,POST,PUT,DELETE'",
+    };
     // Add GatewayResponses for 401 and 403 errors with CORS headers
     new apigateway.CfnGatewayResponse(this, 'UnauthorizedResponse', {
       restApiId: api.restApiId,
       responseType: 'UNAUTHORIZED',
       statusCode: '401',
-      responseParameters: {
-        'gatewayresponse.header.Access-Control-Allow-Origin': "'*'",
-        'gatewayresponse.header.Access-Control-Allow-Headers':
-          "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
-        'gatewayresponse.header.Access-Control-Allow-Methods':
-          "'GET,OPTIONS,POST,PUT,DELETE'",
-      },
+      responseParameters: respParameters,
       responseTemplates: {
         'application/json': '{"message": "Unauthorized"}',
       },
@@ -136,15 +141,19 @@ export class ImportServiceStack extends cdk.Stack {
       restApiId: api.restApiId,
       responseType: 'ACCESS_DENIED',
       statusCode: '403',
-      responseParameters: {
-        'gatewayresponse.header.Access-Control-Allow-Origin': "'*'",
-        'gatewayresponse.header.Access-Control-Allow-Headers':
-          "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
-        'gatewayresponse.header.Access-Control-Allow-Methods':
-          "'GET,OPTIONS,POST,PUT,DELETE'",
-      },
+      responseParameters: respParameters,
       responseTemplates: {
         'application/json': '{"message": "Access Denied"}',
+      },
+    });
+
+    new apigateway.CfnGatewayResponse(this, 'UnauthorizedResponseError', {
+      restApiId: api.restApiId,
+      responseType: 'DEFAULT_5XX',
+      statusCode: '500',
+      responseParameters: respParameters,
+      responseTemplates: {
+        'application/json': '{"message": "ServerError"}',
       },
     });
   }

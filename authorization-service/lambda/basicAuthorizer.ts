@@ -15,19 +15,26 @@ export const handler = (
       return cb(null, generatePolicy('user', event.methodArn, 'Deny', 401));
     }
 
-    const authToken = event.authorizationToken;
+    const authToken = event.authorizationToken; //'Basic sGLzdRxvZmw0ZXs0UGFzcw=='
 
     if (!authToken) {
       return cb(null, generatePolicy('user', event.methodArn, 'Deny', 401));
     }
 
-    const encodedCreds = authToken.split(' ')[1];
+    const encodedCreds = authToken.split(' ')[1]; //sGLzdRxvZmw0ZXs0UGFzcw==
+    if (!encodedCreds) {
+      return cb(
+        null,
+        generatePolicy(encodedCreds, event.methodArn, 'Deny', 401),
+      );
+    }
+
     const buff = Buffer.from(encodedCreds, 'base64');
     const plainCreds = buff.toString('utf-8').split(':');
     const username = plainCreds[0];
     const password = plainCreds[1];
     const storedUserPassord = process.env[username];
-    //console.log('POLIC:', storedUserPassord, password, username, encodedCreds);
+
     if (!storedUserPassord || storedUserPassord !== password) {
       return cb(
         null,
@@ -35,7 +42,7 @@ export const handler = (
       );
     }
 
-    const policy = generatePolicy(encodedCreds, event.methodArn, 'Allow');
+    const policy = generatePolicy(encodedCreds, event.methodArn, 'Allow', 200);
 
     cb(null, policy);
   } catch (err) {
@@ -63,7 +70,7 @@ const generatePolicy = (
       ],
     },
     context: {
-      statusCode: statusCode || (effect === 'Allow' ? 200 : 403),
+      statusCode: statusCode,
     },
   };
 };
